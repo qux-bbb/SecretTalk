@@ -112,15 +112,17 @@ class Conversation:
                             print('[*] {}'.format(received_messages[i]))
                         self.history_messages = received_messages
                         self.history_messages_num = received_messages_num
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, EOFError):
                 print('loop exit')
                 break
 
 
 if __name__ == "__main__":
-
-    conversation_name = input('Please input conversation name: ')
-    con = Conversation('TXGuiFoundation', conversation_name)
-    t = Thread(target=con.loop)
-    t.start()
-    t.join()
+    try:
+        conversation_name = input('Please input conversation name: ')
+        con = Conversation('TXGuiFoundation', conversation_name)
+        t = Thread(target=con.loop)
+        t.start()
+        t.join()
+    except (KeyboardInterrupt, EOFError):
+        print('normal exit')
