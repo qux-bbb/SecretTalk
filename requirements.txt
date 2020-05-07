@@ -1,1 +1,2 @@
 pywin32==227
+cryptography==2.9.2
