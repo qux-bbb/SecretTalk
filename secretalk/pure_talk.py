@@ -1,10 +1,11 @@
 # coding:utf8
 
+import os
 import base64
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import dh
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_der_public_key
 from cryptography.fernet import Fernet
@@ -42,28 +43,26 @@ class Conversation:
                 break
     
     def prepare(self):
-        parameters_bytes = open('parameters_bytes', 'rb').read()
-        parameters = self.backend.load_der_parameters(parameters_bytes)
-        # Generate a private key for use in the exchange.
-        private_key = parameters.generate_private_key()
+        private_key = ec.generate_private_key(ec.SECP384R1(), self.backend)
         public_key = private_key.public_key()
 
         public_key_bytes = public_key.public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)
-        msg = 'pk:{}'.format(bytes_to_hex_string(public_key_bytes))
+        msg = 'peer_public_key:{}'.format(bytes_to_hex_string(public_key_bytes))
         print('Please send the following message to your friend')
         print(msg)
 
+        peer_public_key = ''
         while True:
             peer_public_key_msg = input('Please input peer_public_key msg from your friend: ').strip()
-            if peer_public_key_msg.startswith('pk:'):
-                peer_public_key_bytes = bytes.fromhex(peer_public_key_msg[3:])
+            if peer_public_key_msg.startswith('peer_public_key:'):
+                peer_public_key_bytes = bytes.fromhex(peer_public_key_msg[16:])
                 peer_public_key = load_der_public_key(peer_public_key_bytes, self.backend)
                 break
             else:
-                print('[!] peer_public_key msg must start with "pk:"')
+                print('[!] peer_public_key msg must start with "peer_public_key:"')
                 continue
             
-        shared_key = private_key.exchange(peer_public_key)
+        shared_key = private_key.exchange(ec.ECDH(), peer_public_key)
         # Perform key derivation.
         derived_key = HKDF(
             algorithm=hashes.SHA256(),

@@ -11,7 +11,7 @@ import win32con
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.asymmetric import dh
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_der_public_key
@@ -146,10 +146,8 @@ class Conversation:
                 break
     
     def prepare(self):
-        parameters_bytes = open('parameters_bytes', 'rb').read()
-        parameters = self.backend.load_der_parameters(parameters_bytes)
         # Generate a private key for use in the exchange.
-        private_key = parameters.generate_private_key()
+        private_key = ec.generate_private_key(ec.SECP384R1(), self.backend)
         public_key = private_key.public_key()
 
         public_key_bytes = public_key.public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)
@@ -172,7 +170,7 @@ class Conversation:
                 break
             time.sleep(5)
 
-        shared_key = private_key.exchange(peer_public_key)
+        shared_key = private_key.exchange(ec.ECDH(), peer_public_key)
         # Perform key derivation.
         derived_key = HKDF(
             algorithm=hashes.SHA256(),

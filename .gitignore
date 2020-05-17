@@ -1,4 +1,6 @@
-test.py
+secretalk/test.py
+secretalk/pure_talk_with_pre_key/private/*
+secretalk/pure_talk_with_pre_key/friends/*
 
 venv
 .vscode
