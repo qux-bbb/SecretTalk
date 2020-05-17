@@ -2,6 +2,7 @@
 
 import os
 import base64
+import getpass
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
@@ -72,10 +73,17 @@ class Conversation:
                     key_size=2048,
                     backend=self.backend
                 )
-                my_private_key_bytes = my_private_key.private_bytes(
-                    serialization.Encoding.DER, 
-                    format=serialization.PrivateFormat.TraditionalOpenSSL,
-                    encryption_algorithm=serialization.NoEncryption())
+                private_key_password = getpass.getpass('input a password for private_key, default is empty: ')
+                if private_key_password:
+                    my_private_key_bytes = my_private_key.private_bytes(
+                        serialization.Encoding.DER, 
+                        format=serialization.PrivateFormat.PKCS8,
+                        encryption_algorithm=serialization.BestAvailableEncryption(private_key_password.encode('utf8')))
+                else:
+                    my_private_key_bytes = my_private_key.private_bytes(
+                        serialization.Encoding.DER, 
+                        format=serialization.PrivateFormat.PKCS8,
+                        encryption_algorithm=serialization.NoEncryption())
                 open(my_private_key_file_path, 'wb').write(my_private_key_bytes)
 
                 my_public_key = my_private_key.public_key()
@@ -121,11 +129,19 @@ class Conversation:
             print(msg)
         if choice == '2':
             my_private_key_content = open(my_private_key_file_path, 'rb').read()
-            my_private_key = serialization.load_der_private_key(
-                my_private_key_content, 
-                None, 
-                self.backend
-            )
+            private_key_password = getpass.getpass('input the password of private_key, default is empty: ')
+            if private_key_password:
+                my_private_key = serialization.load_der_private_key(
+                    my_private_key_content, 
+                    private_key_password.encode('utf8'), 
+                    self.backend
+                )
+            else:
+                my_private_key = serialization.load_der_private_key(
+                    my_private_key_content, 
+                    None, 
+                    self.backend
+                )
             while True:
                 encrypted_secret_key_msg = input('Please input encrypted_secret_key msg from your friend: ').strip()
 
