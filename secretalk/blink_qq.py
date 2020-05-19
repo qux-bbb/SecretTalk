@@ -3,6 +3,7 @@
 import re
 import time
 import base64
+import binascii
 
 from threading import Lock
 from win32 import win32gui, win32api, win32clipboard
@@ -16,9 +17,6 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_der_public_key
 from cryptography.fernet import Fernet
-
-def bytes_to_hex_string(bs):
-    return ''.join(['%02x' % b for b in bs])
 
 
 class Conversation:
@@ -125,7 +123,7 @@ class Conversation:
                 msg = input('> ')
                 if msg:
                     encrypted_text = self.fernet.encrypt(msg.encode('utf8'))
-                    msg = bytes_to_hex_string(encrypted_text)
+                    msg = binascii.hexlify(encrypted_text).decode('utf8')
                     final_msg = 'msg:{}'.format(msg)
                     self.send_msg(final_msg)
                 else:
@@ -152,7 +150,7 @@ class Conversation:
 
         public_key_bytes = public_key.public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)
 
-        msg = 'pk:{}'.format(bytes_to_hex_string(public_key_bytes))
+        msg = 'pk:{}'.format(binascii.hexlify(public_key_bytes).decode('utf8'))
         self.send_msg(msg)
 
         print('wait for peer_public_key...')

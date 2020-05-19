@@ -2,6 +2,7 @@
 
 import os
 import base64
+import binascii
 import getpass
 
 from cryptography.hazmat.backends import default_backend
@@ -9,9 +10,6 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.fernet import Fernet
-
-def bytes_to_hex_string(bs):
-    return ''.join(['%02x' % b for b in bs])
 
 
 class Conversation:
@@ -36,7 +34,7 @@ class Conversation:
                 if choice == '1':
                     plaintext = input('plaintext: ')
                     encrypted_text = self.fernet.encrypt(plaintext.encode('utf8'))
-                    msg = bytes_to_hex_string(encrypted_text)
+                    msg = binascii.hexlify(encrypted_text).decode('utf8')
                     print('encrypted:{}'.format(msg))
                     continue
                 if choice == '2':
@@ -124,7 +122,7 @@ class Conversation:
                     label=None
                 )
             )
-            msg = 'encrypted_secret_key:{}'.format(bytes_to_hex_string(encrypted_secret_key))
+            msg = 'encrypted_secret_key:{}'.format(binascii.hexlify(encrypted_secret_key).decode('utf8'))
             print('Please send the following encrypted_secret_key msg to your friend')
             print(msg)
         if choice == '2':
