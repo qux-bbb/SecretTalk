@@ -11,10 +11,8 @@ import win32con
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, load_der_public_key
 from cryptography.fernet import Fernet
 
@@ -42,7 +40,7 @@ class Conversation:
             print('can not find window, exit.')
             exit(0)
         self.lock = Lock()
-    
+
     def send_msg(self, msg):
         self.lock.acquire()
 
@@ -86,8 +84,8 @@ class Conversation:
 
         time.sleep(1)
 
-        x_mid = int(win32api.GetSystemMetrics(win32con.SM_CXSCREEN)/2)
-        y_mid = int(win32api.GetSystemMetrics(win32con.SM_CYSCREEN)/2)
+        x_mid = int(win32api.GetSystemMetrics(win32con.SM_CXSCREEN) / 2)
+        y_mid = int(win32api.GetSystemMetrics(win32con.SM_CYSCREEN) / 2)
         win32api.SetCursorPos([x_mid, y_mid])
 
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0, 0)  # left mouse button
@@ -133,8 +131,8 @@ class Conversation:
                     if self.history_msgs_num < received_msgs_num:
                         print()
                         for i in range(self.history_msgs_num, received_msgs_num):
-                            if received_msgs[i][0]!=self.sender_name and received_msgs[i][2].startswith('msg:') \
-                                and received_msgs[i][2][4:]:
+                            if received_msgs[i][0] != self.sender_name and received_msgs[i][2].startswith('msg:') \
+                                    and received_msgs[i][2][4:]:
                                 received_msg_byte = bytes.fromhex(received_msgs[i][2][4:])
                                 decrypted_msg = self.fernet.decrypt(received_msg_byte)
                                 print('[*] {}'.format(decrypted_msg.decode('utf8')))
@@ -142,7 +140,7 @@ class Conversation:
             except (KeyboardInterrupt, EOFError):
                 print('loop exit')
                 break
-    
+
     def prepare(self):
         # Generate a private key for use in the exchange.
         private_key = ec.generate_private_key(ec.SECP384R1(), self.backend)
@@ -179,6 +177,7 @@ class Conversation:
         ).derive(shared_key)
         secret_key = base64.urlsafe_b64encode(derived_key)
         self.fernet = Fernet(secret_key)
+
 
 def main():
     try:
