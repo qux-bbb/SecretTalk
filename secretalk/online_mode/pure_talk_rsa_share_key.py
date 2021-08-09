@@ -93,7 +93,7 @@ class Conversation(BaseConversation):
 
             friend_key_names = os.listdir(friend_keys_dir_path)
             if not friend_key_names:
-                print('there is no one friend\'s public key, exit')
+                print('there is no one friend\'s public key, and you can add it to friends folder, exit')
                 exit(0)
             hint = 'friend_key_names:\n {}\ninput a key name you want: '.format(' \n'.join(friend_key_names))
             selected_friend_key_name = get_choice(
