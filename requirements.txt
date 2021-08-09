@@ -1,2 +1,2 @@
-pywin32==227
-cryptography==2.9.2
+pywin32==301
+cryptography==3.4.7
