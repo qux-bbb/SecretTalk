@@ -1,2 +1,2 @@
 pywin32==301
-cryptography==39.0.1
+cryptography==41.0.2
