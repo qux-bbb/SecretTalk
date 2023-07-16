@@ -118,6 +118,7 @@ class Conversation(BaseConversation):
                     serialization.Encoding.DER, 
                     serialization.PublicFormat.SubjectPublicKeyInfo)
                 open(my_public_key_file_path, 'wb').write(my_public_key_bytes)
+                print('key pair generated.')
             if choice == '2':
                 exit(0)
 
